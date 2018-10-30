@@ -113,7 +113,7 @@ class ResNetV2AudioClassifier(object):
         self.input_shape = self.config['input_shape']
         self.nb_classes = self.config['nb_classes']
         self.model = self.create_model(self.nb_classes)
-        self.model.load_params(params_file_path, ctx=self.model_ctx)
+        self.model.load_parameters(params_file_path, ctx=self.model_ctx)
         self.model.hybridize()
 
     def compute_melgram(self, audio_path):
