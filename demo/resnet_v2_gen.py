@@ -5,6 +5,7 @@ import mxnet as mx
 from mxnet import autograd, ndarray as nd
 import numpy as np
 import matplotlib.pyplot as plt
+from time import time
 
 def patch_path(path):
     return os.path.join(os.path.dirname(__file__), path)
@@ -20,7 +21,7 @@ def classifier_loss(X, classifier):
     X.attach_grad()
     with autograd.record():
        output = classifier.model(X)
-       output = output[0, jazz_id]
+       output = output[0, 3] #jazz_id]
     output.backward()
 
     return (output.asscalar(), X.grad)
@@ -87,12 +88,12 @@ def load_audio_path_label_pairs(max_allowed_pairs=None):
 def GD(classifier, alpha, beta, gamma, max_iterations = 100,
        learning_rate = 50.0, learning_rate_decay = 0.9, momentum = 0.5):
     # Random initialization
-    X = nd.abs(nd.random_normal(scale=1, shape=(1, *classifier.input_shape)))
-    #audio_path_label_pairs = load_audio_path_label_pairs()
-    #shuffle(audio_path_label_pairs)
-    #audio_path, actual_label_id = audio_path_label_pairs[0]
-    #mg = classifier.compute_melgram(audio_path)
-    #X = nd.array(np.expand_dims(mg, axis=0), ctx=classifier.model_ctx)
+    #X = nd.abs(nd.random_normal(scale=1, shape=(1, *classifier.input_shape)))
+    audio_path_label_pairs = load_audio_path_label_pairs()
+    shuffle(audio_path_label_pairs)
+    audio_path, actual_label_id = audio_path_label_pairs[0]
+    mg = classifier.compute_melgram(audio_path)
+    X = nd.array(np.expand_dims(mg, axis=0), ctx=classifier.model_ctx)
     X = X.as_in_context(classifier.model_ctx)
 
     # GD with momentum
@@ -151,8 +152,11 @@ def main():
     classifier = ResNetV2AudioClassifier()
     classifier.load_model(model_dir_path=patch_path('models'))
 
+    start = time()
     # Perform projected gradient descent with momentum
-    GD(classifier, 0.002, 0.0008, 0.001)
+    #GD(classifier, 0.004, 0.0008, 0.005)
+    GD(classifier, 0.008, 0.0008, 0.005)
+    print("Time spent: %.2fs" % (time() - start))
 
 
 if __name__ == '__main__':
