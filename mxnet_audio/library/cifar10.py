@@ -8,7 +8,7 @@ from mxnet_audio.library.utility.audio_utils import compute_melgram
 from random import shuffle
 
 
-def cifar10(nb_classes):
+def cifar10(nb_classes): # returns an NN model, with Naive-Bayes classes
     channel_axis = 1
     freq_axis = 2
     time_axis = 3
@@ -79,7 +79,7 @@ class Cifar10AudioClassifier(object):
     def get_params_file_path(model_dir_path):
         return os.path.join(model_dir_path, Cifar10AudioClassifier.model_name + '-net.params')
 
-    def load_model(self, model_dir_path):
+    def load_model(self, model_dir_path): # load the model from self and path
         config_file_path = Cifar10AudioClassifier.get_config_file_path(model_dir_path)
         params_file_path = Cifar10AudioClassifier.get_params_file_path(model_dir_path)
         self.config = np.load(config_file_path).item()
@@ -89,7 +89,7 @@ class Cifar10AudioClassifier(object):
         self.model.load_params(params_file_path, ctx=self.model_ctx)
         self.model.hybridize()
 
-    def compute_melgram(self, audio_path):
+    def compute_melgram(self, audio_path): # melgram
         if audio_path in self.cache:
             return self.cache[audio_path]
         else:
@@ -109,7 +109,7 @@ class Cifar10AudioClassifier(object):
                 end = (batchIdx + 1) * batch_size
 
                 X = np.zeros(shape=(batch_size, self.input_shape[0], self.input_shape[1], self.input_shape[2]),
-                             dtype=np.float32)
+                             dtype=np.float32) # initialize melgram batches
                 for i in range(start, end):
                     audio_path = audio_paths[i]
                     mg = compute_melgram(audio_path)
@@ -117,7 +117,7 @@ class Cifar10AudioClassifier(object):
                 yield nd.array(X, ctx=self.data_ctx), nd.array(labels[start:end], ctx=self.data_ctx)
 
     @staticmethod
-    def one_hot(y, nb_classes):
+    def one_hot(y, nb_classes): # all-1 results?
         result = np.zeros(shape=(len(y), nb_classes))
         for i, label in enumerate(y):
             result[i, label] = 1
@@ -143,7 +143,7 @@ class Cifar10AudioClassifier(object):
         X, Y = self.unzip(audio_path_label_pairs)
         return self._evaluate_accuracy(X, Y, batch_size)
 
-    def _evaluate_accuracy(self, X, Y, batch_size=64):
+    def _evaluate_accuracy(self, X, Y, batch_size=64): # use softmax loss
         data_loader = self.generate_batch(X, Y, batch_size, shuffled=False)
 
         softmax_loss = gluon.loss.SoftmaxCrossEntropyLoss()
@@ -167,7 +167,8 @@ class Cifar10AudioClassifier(object):
 
     def fit(self, audio_path_label_pairs, model_dir_path, batch_size=64, epochs=20, test_size=0.2,
             random_state=42, input_shape=(1, 96, 1366), nb_classes=10, learning_rate=.001,
-            checkpoint_interval=10):
+            checkpoint_interval=10): # Process: load & train & test
+                                     # Method used: backprop, softmax, tbd?
 
         config_file_path = Cifar10AudioClassifier.get_config_file_path(model_dir_path)
 
@@ -256,7 +257,6 @@ class Cifar10AudioClassifier(object):
         predicted = self.encode_audio(audio_path)
         return np.argmax(predicted)
 
-
 class Cifar10AudioSearch(Cifar10AudioClassifier):
 
     def __init__(self, model_ctx=mx.cpu(), data_ctx=mx.cpu()):
@@ -311,6 +311,6 @@ class Cifar10AudioRecommender(Cifar10AudioSearch):
         shuffle(lis)
         return lis[:limits] if len(lis) >= limits else lis
 
-
+### No generating so far
 
 
