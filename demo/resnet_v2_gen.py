@@ -62,7 +62,7 @@ def style_loss(X):
 
 
 def l1_regularization(X):
-    return (-nd.norm(X).asscalar(), nd.multiply(-1.0, nd.sign(X)))
+    return (-nd.norm(X).asscalar(), nd.sign(X))
 
 
 def load_audio_path_label_pairs(max_allowed_pairs=None):
@@ -105,9 +105,9 @@ def GD(classifier, alpha, beta, gamma, max_iterations = 100,
     l1s = []
     for t in range(max_iterations):
         # Projection
-        X = nd.subtract(X, nd.min(X.flatten())) 
+        X = nd.maximum(X, 0) 
         X = nd.divide(X, nd.max(X.flatten()))
- 
+
         # Save as .csv        
         img = X[0, 0, :, :].asnumpy()
         np.savetxt('./temp/iter%d.csv' % t, img)
@@ -123,7 +123,8 @@ def GD(classifier, alpha, beta, gamma, max_iterations = 100,
         grad = cls_loss[1] + alpha * sty_loss[1] + beta * pct_loss[1] + gamma * l1[1]
 
         # Store losses
-        print("Iteration %d: %.2f | (%.2f, %.2f, %.2f, %.2f)" % (t, loss, cls_loss[0], sty_loss[0], pct_loss[0], l1[0]))
+        print("Iteration %d: %.2f | (%.2f, %.2f, %.2f, %.2f)" % (t, loss, cls_loss[0], sty_loss[0], pct_loss[0],l1[0]))
+        #print("Iteration %d: %.2f | (%.2f, %.2f, %.2f)" % (t, loss, cls_loss[0], sty_loss[0], pct_loss[0]))
         losses.append(loss)
         cls_losses.append(cls_loss[0])
         sty_losses.append(sty_loss[0])
@@ -151,7 +152,8 @@ def main():
     classifier.load_model(model_dir_path=patch_path('models'))
 
     # Perform projected gradient descent with momentum
-    GD(classifier, 0.002, 0.0008, 0.01)
+    #GD(classifier, 0.002, 0.0008, 0.01)
+    GD(classifier, 0.0, 0.0, 1)
 
 if __name__ == '__main__':
     main()
