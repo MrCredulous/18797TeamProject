@@ -62,7 +62,7 @@ def style_loss(X):
 
 
 def l1_regularization(X):
-    return (-nd.norm(X).asscalar(), nd.sign(X))
+    return (-nd.norm(X).asscalar(), nd.multiply(-1.0, nd.sign(X)))
 
 
 def load_audio_path_label_pairs(max_allowed_pairs=None):
