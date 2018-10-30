@@ -105,8 +105,8 @@ def GD(classifier, alpha, beta, gamma, max_iterations = 100,
     l1s = []
     for t in range(max_iterations):
         # Projection
-        X = nd.maximum(X, 0) 
-        X = nd.divide(X, nd.max(X.flatten()))
+        X = nd.maximum(X, 0.0) 
+        X = nd.minimum(X, 1.0) 
 
         # Save as .csv        
         img = X[0, 0, :, :].asnumpy()
@@ -152,8 +152,8 @@ def main():
     classifier.load_model(model_dir_path=patch_path('models'))
 
     # Perform projected gradient descent with momentum
-    #GD(classifier, 0.002, 0.0008, 0.01)
-    GD(classifier, 0.0, 0.0, 1)
+    GD(classifier, 0.002, 0.0008, 0.001)
+
 
 if __name__ == '__main__':
     main()
