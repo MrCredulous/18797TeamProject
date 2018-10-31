@@ -88,12 +88,12 @@ def load_audio_path_label_pairs(max_allowed_pairs=None):
 def GD(classifier, alpha, beta, gamma, max_iterations = 100,
        learning_rate = 50.0, learning_rate_decay = 0.9, momentum = 0.5):
     # Random initialization
-    #X = nd.abs(nd.random_normal(scale=1, shape=(1, *classifier.input_shape)))
-    audio_path_label_pairs = load_audio_path_label_pairs()
-    shuffle(audio_path_label_pairs)
-    audio_path, actual_label_id = audio_path_label_pairs[0]
-    mg = classifier.compute_melgram(audio_path)
-    X = nd.array(np.expand_dims(mg, axis=0), ctx=classifier.model_ctx)
+    X = nd.abs(nd.random_normal(scale=1, shape=(1, *classifier.input_shape)))
+    #audio_path_label_pairs = load_audio_path_label_pairs()
+    #shuffle(audio_path_label_pairs)
+    #audio_path, actual_label_id = audio_path_label_pairs[0]
+    #mg = classifier.compute_melgram(audio_path)
+    #X = nd.array(np.expand_dims(mg, axis=0), ctx=classifier.model_ctx)
     X = X.as_in_context(classifier.model_ctx)
 
     # GD with momentum
